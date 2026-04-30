@@ -1,7 +1,6 @@
 export class AfterlifeManager {
     static SOCKET_NAME = "module.afterlife-manager";
 
-    // Fetches the assigned Journal Entry from the Foundry settings
     static get hqJournal() {
         const journalId = game.settings.get("afterlife-manager", "hqJournalId");
         return game.journal.get(journalId);
@@ -11,9 +10,7 @@ export class AfterlifeManager {
         game.socket.on(this.SOCKET_NAME, this._onSocketMessage.bind(this));
     }
 
-    // --- PLAYER ACTIONS (Sending Requests) ---
-
-    static async requestFundTransfer(sourceActorId, amount) {
+    static async requestFundTransfer(sourceActorId, targetActorId, amount) {
         const payload = {
             action: "addRequest",
             requestData: {
@@ -21,6 +18,7 @@ export class AfterlifeManager {
                 type: "fund_transfer",
                 requestedBy: game.user.id,
                 sourceActorId: sourceActorId,
+                targetActorId: targetActorId,
                 amount: amount,
                 status: "pending",
                 timestamp: Date.now()
@@ -44,8 +42,6 @@ export class AfterlifeManager {
         game.socket.emit(this.SOCKET_NAME, payload);
     }
 
-    // --- GM / SYSTEM ACTIONS (Processing Sockets) ---
-
     static async _onSocketMessage(payload) {
         if (!game.user.isGM) return;
 
@@ -61,8 +57,6 @@ export class AfterlifeManager {
         }
     }
 
-    // --- INBOX RESOLUTION (Triggered via UI by GM or Owner) ---
-
     static async resolveRequest(requestId, resolutionType, visualOptions = { sceneId: "none", macroName: "" }) {
         const hqJournal = this.hqJournal;
         if (!hqJournal) return;
@@ -77,38 +71,37 @@ export class AfterlifeManager {
 
         const request = currentInbox[requestIndex];
 
-        // If the GM clicks Approve
         if (resolutionType === "approve" && game.user.isGM) {
             
-            // Handle Eurobuck Transfers
             if (request.type === "fund_transfer") {
-                // Deduct from the player's Actor sheet
                 const sourceActor = game.actors.get(request.sourceActorId);
-                const currentEb = sourceActor.system.wealth.value; // Adjust path if CPR system data structure differs
+                const currentEb = sourceActor.system.wealth.value; 
                 await sourceActor.update({ "system.wealth.value": currentEb - request.amount });
 
-                // Add to the Journal's shared pool
-                const currentFunds = clubData.basics?.sharedFunds || 0;
-                await hqJournal.setFlag('afterlife-manager', 'afterlifeState.basics.sharedFunds', currentFunds + request.amount);
+                if (request.targetActorId === "afterlife") {
+                    const currentFunds = clubData.basics?.sharedFunds || 0;
+                    await hqJournal.setFlag('afterlife-manager', 'afterlifeState.basics.sharedFunds', currentFunds + request.amount);
+                } else {
+                    const targetActor = game.actors.get(request.targetActorId);
+                    if (targetActor) {
+                        const targetEb = targetActor.system.wealth.value;
+                        await targetActor.update({ "system.wealth.value": targetEb + request.amount });
+                    }
+                }
                 
-                // Move to history ledger
                 request.status = "completed";
                 transferHistory.push(request);
                 await hqJournal.setFlag('afterlife-manager', 'afterlifeState.history', transferHistory);
             }
 
-            // Handle Upgrade Pitches
             if (request.type === "custom_upgrade") {
-                // Deduct cost from the shared pool
                 const currentFunds = clubData.basics?.sharedFunds || 0;
                 await hqJournal.setFlag('afterlife-manager', 'afterlifeState.basics.sharedFunds', currentFunds - request.cost);
                 
-                // Move to active construction
                 request.status = "construction";
                 customUpgrades.push(request);
                 await hqJournal.setFlag('afterlife-manager', 'afterlifeState.customUpgrades', customUpgrades);
 
-                // Execute Visual Routing: Scene Swap
                 if (visualOptions.sceneId !== "none" && visualOptions.sceneId !== "") {
                     const newScene = game.scenes.get(visualOptions.sceneId);
                     if (newScene) {
@@ -117,19 +110,14 @@ export class AfterlifeManager {
                     }
                 }
 
-                // Execute Visual Routing: Macro Trigger (Monk's Active Tiles)
                 if (visualOptions.macroName !== "") {
                     const macro = game.macros.getName(visualOptions.macroName);
-                    if (macro) {
-                        macro.execute();
-                    } else {
-                        ui.notifications.warn(`Afterlife OS: Macro "${visualOptions.macroName}" not found.`);
-                    }
+                    if (macro) macro.execute();
+                    else ui.notifications.warn(`Afterlife OS: Macro "${visualOptions.macroName}" not found.`);
                 }
             }
         }
 
-        // Clean up the inbox regardless of approve, reject, or cancel
         currentInbox.splice(requestIndex, 1);
         await hqJournal.setFlag('afterlife-manager', 'afterlifeState.inbox', currentInbox);
     }

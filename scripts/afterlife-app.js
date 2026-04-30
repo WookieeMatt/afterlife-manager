@@ -1,5 +1,5 @@
 import { AfterlifeManager } from "./afterlife-manager.js";
-import { AfterlifeRequestForm } from "./request-form.js";
+import { FundTransferForm, UpgradePitchForm } from "./request-forms.js";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -20,7 +20,8 @@ export class AfterlifeDashboard extends HandlebarsApplicationMixin(ApplicationV2
             approveRequest: AfterlifeDashboard._onApproveRequest,
             rejectRequest: AfterlifeDashboard._onRejectRequest,
             cancelRequest: AfterlifeDashboard._onCancelRequest,
-            openRequestForm: AfterlifeDashboard._onOpenForm
+            openTransferForm: AfterlifeDashboard._onOpenTransfer,
+            openUpgradeForm: AfterlifeDashboard._onOpenUpgrade
         }
     };
 
@@ -29,56 +30,55 @@ export class AfterlifeDashboard extends HandlebarsApplicationMixin(ApplicationV2
     };
 
     async _prepareContext(options) {
-        // Pull data from the assigned Journal Entry
         const hqJournal = AfterlifeManager.hqJournal;
         const clubData = hqJournal ? hqJournal.getFlag('afterlife-manager', 'afterlifeState') || {} : {};
         
         const currentUserId = game.user.id;
         const isGM = game.user.isGM;
 
-        // Process the Pending Inbox
-        const rawInbox = clubData.inbox || [];
-        const processedInbox = rawInbox.map(request => {
+        const mapRequestData = (request) => {
             const requestingUser = game.users.get(request.requestedBy);
             const sourceActor = request.sourceActorId ? game.actors.get(request.sourceActorId) : null;
+            
+            const targetActorName = request.targetActorId === "afterlife" 
+                ? "The Afterlife Shared Fund" 
+                : (game.actors.get(request.targetActorId)?.name || "Unknown");
+
             return {
                 ...request,
-                userName: requestingUser ? requestingUser.name : "Unknown",
-                actorName: sourceActor ? sourceActor.name : "Unknown",
+                userName: requestingUser ? requestingUser.name : "Unknown Edgerunner",
+                actorName: sourceActor ? sourceActor.name : "Unknown Account",
+                targetName: targetActorName,
                 canApprove: isGM,
                 canCancel: (request.requestedBy === currentUserId) && !isGM
             };
-        });
+        };
 
-        // Process Expansion Scenes from Settings
+        const processedInbox = (clubData.inbox || []).map(mapRequestData);
+        const processedHistory = (clubData.history || []).map(mapRequestData);
+        const processedUpgrades = (clubData.customUpgrades || []).map(mapRequestData);
+
         const targetFolderId = game.settings.get("afterlife-manager", "sceneFolderId");
         const sceneFolder = game.folders.get(targetFolderId);
         const expansionScenes = sceneFolder ? sceneFolder.contents.map(s => ({ id: s.id, name: s.name })) : [];
 
-        // Process Upgrades and Ledgers
-        const customUpgrades = clubData.customUpgrades || [];
-        const transferHistory = clubData.history || [];
-
         return {
             inbox: processedInbox,
-            history: transferHistory,
-            constructionUpgrades: customUpgrades.filter(u => u.status === "construction"),
-            completedUpgrades: customUpgrades.filter(u => u.status === "active"),
+            history: processedHistory,
+            constructionUpgrades: processedUpgrades.filter(u => u.status === "construction"),
+            completedUpgrades: processedUpgrades.filter(u => u.status === "active"),
             isGM: isGM,
             isEmpty: processedInbox.length === 0,
-            hasHQ: !!hqJournal, // Validates if the GM set up the Journal
+            hasHQ: !!hqJournal,
             expansionScenes: expansionScenes,
             sharedFunds: clubData.basics?.sharedFunds || 0
         };
     }
 
-    // --- BUTTON ACTIONS ---
-
     static async _onApproveRequest(event, target) {
         const inboxItem = target.closest('.inbox-item');
         const requestId = inboxItem.dataset.requestId;
         
-        // Grab values from the GM's visual routing inputs
         let visualOptions = { sceneId: "none", macroName: "" };
         const sceneSelect = inboxItem.querySelector('.scene-select');
         const macroInput = inboxItem.querySelector('.macro-input');
@@ -99,7 +99,11 @@ export class AfterlifeDashboard extends HandlebarsApplicationMixin(ApplicationV2
         await AfterlifeManager.resolveRequest(requestId, "cancel");
     }
 
-    static async _onOpenForm(event, target) {
-        new AfterlifeRequestForm().render({force: true});
+    static async _onOpenTransfer(event, target) {
+        new FundTransferForm().render({force: true});
+    }
+
+    static async _onOpenUpgrade(event, target) {
+        new UpgradePitchForm().render({force: true});
     }
 }

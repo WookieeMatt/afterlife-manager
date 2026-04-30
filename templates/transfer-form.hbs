@@ -1,0 +1,19 @@
+<div class="cpr-container">
+    <label class="cpr-bold">SENDER ACTOR:</label>
+    <select name="sourceActor" class="cpr-input" style="margin-bottom: 10px;">
+        {{#each actors as |actor|}} <option value="{{actor.id}}">{{actor.name}}</option> {{/each}}
+    </select>
+
+    <label class="cpr-bold">RECIPIENT ACTOR:</label>
+    <select name="targetActor" class="cpr-input" style="margin-bottom: 10px;">
+        <option value="afterlife">The Afterlife Shared Fund</option>
+        {{#each allActors as |actor|}} <option value="{{actor.id}}">{{actor.name}}</option> {{/each}}
+    </select>
+    
+    <label class="cpr-bold">AMOUNT (eb):</label>
+    <input type="number" name="amount" class="cpr-input" min="1" placeholder="500" style="margin-bottom: 15px;">
+
+    <button type="button" class="cpr-btn approve" data-action="submitTransfer" style="width: 100%;">
+        SEND TRANSFER
+    </button>
+</div>
