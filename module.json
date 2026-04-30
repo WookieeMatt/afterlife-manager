@@ -2,7 +2,7 @@
   "id": "afterlife-manager",
   "title": "Ticket to the Afterlife - Management OS",
   "description": "Gamifies the growth of the Afterlife using No Place Like Home mechanics.",
-  "version": "1.3.0",
+  "version": "1.3.2",
   "compatibility": {
     "minimum": "12",
     "verified": "12"
