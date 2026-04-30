@@ -1,117 +1,83 @@
 <div class="cpr-container">
     {{#if hasHQ}}
-        <header class="cpr-header flexcol" style="align-items: center; gap: 10px;">
-            <h2 style="margin:0;">AFTERLIFE MAIN TERMINAL</h2>
-            
-            <div class="flexrow" style="gap: 10px; width: 100%; justify-content: center;">
-                <button type="button" class="cpr-btn" data-action="openTransferForm" style="color: #000000; background-color: #d3d3d3; border-color: #000000; font-weight: 900;">FUND TRANSFER</button>
-                <button type="button" class="cpr-btn" data-action="openUpgradeForm" style="color: #000000; background-color: #d3d3d3; border-color: #000000; font-weight: 900;">PURCHASE UPGRADE</button>
+        <header class="cpr-header flexcol">
+            <h2 style="margin:0; text-align:center;">AFTERLIFE MAIN TERMINAL</h2>
+            <div class="flexrow" style="gap: 10px; margin-top: 10px;">
+                <button type="button" class="cpr-btn" data-action="openTransferForm" style="color:#000; background:#d3d3d3; font-weight:900;">FUND TRANSFER</button>
+                <button type="button" class="cpr-btn" data-action="openUpgradeForm" style="color:#000; background:#d3d3d3; font-weight:900;">PURCHASE UPGRADE</button>
             </div>
         </header>
 
-        <h2 class="eb-text" style="text-align: right; margin-bottom: 15px;">SHARED FUNDS: {{sharedFunds}}eb</h2>
+        <h2 class="eb-text" style="text-align: right; border:none; margin-bottom:10px;">FUNDS: {{sharedFunds}}eb</h2>
 
-        <h3 class="cpr-highlight" style="border-bottom: 2px solid var(--cpr-red);">PENDING REQUESTS</h3>
-        {{#if isEmpty}}
-            <div class="cpr-empty-state"><p>SYSTEM IDLE. NO PENDING TRANSACTIONS.</p></div>
-        {{else}}
-            <ul class="cpr-inbox-list">
-                {{#each inbox as |req|}}
-                    <li class="inbox-item cpr-card flexcol" data-request-id="{{req.id}}">
-                        <div class="request-info" style="margin-bottom: 10px;">
-                            {{#if (eq req.type "fund_transfer")}}
-                                <span class="request-text">
-                                    <span class="cpr-highlight">{{req.userName}}</span> INITIATED TRANSFER: <span class="eb-text">{{req.amount}}eb</span> 
-                                    <br><small>FROM: {{req.actorName}} &rarr; TO: <span class="cpr-bold">{{req.targetName}}</span></small>
-                                </span>
-                            {{/if}}
-                            {{#if (eq req.type "custom_upgrade")}}
-                                <span class="request-text">
-                                    <span class="cpr-highlight">{{req.userName}}</span> PITCHED UPGRADE: <span class="cpr-bold">{{req.targetSystem}}</span>
-                                    <br><small>COST: <span class="eb-text" style="font-size: 0.9rem;">{{req.cost}}eb</span></small>
-                                    <p class="upgrade-desc" style="margin-top: 5px;">{{req.description}}</p>
-                                </span>
-                            {{/if}}
+        <h3 class="cpr-highlight" style="border-bottom: 2px solid #cc0000; margin-bottom:10px;">PENDING REQUESTS</h3>
+        <ul class="cpr-inbox-list" style="list-style:none; padding:0;">
+            {{#each inbox as |req|}}
+                <li class="inbox-item cpr-card flexcol" data-request-id="{{req.id}}" style="margin-bottom:10px;">
+                    <div class="request-info">
+                        {{#if (eq req.type "fund_transfer")}}
+                            <span class="cpr-highlight">{{req.userName}}</span>: {{req.amount}}eb <br>
+                            <small>{{req.actorName}} &rarr; {{req.targetName}}</small>
+                        {{else}}
+                            <span class="cpr-highlight">{{req.userName}}</span> PITCHED: {{req.targetSystem}} ({{req.cost}}eb)<br>
+                            <small>{{req.description}}</small>
+                        {{/if}}
+                    </div>
+
+                    {{#if req.canApprove}}
+                        <div class="gm-visual-controls" style="border-top: 1px dashed #444; margin-top: 8px; padding-top: 8px;">
+                            <label style="font-size:0.7rem; color:#888;">ROUTING & DOCS</label>
+                            <div class="flexrow" style="gap:5px;">
+                                <select class="scene-select cpr-input" title="Scene Change">
+                                    <option value="none">No Scene Change</option>
+                                    {{#each ../expansionScenes}}<option value="{{this.id}}">{{this.name}}</option>{{/each}}
+                                </select>
+                                <select class="journal-select cpr-input" title="Link Journal Entry">
+                                    <option value="none">No Linked Journal</option>
+                                    {{#each ../allJournals}}<option value="{{this.id}}">{{this.name}}</option>{{/each}}
+                                </select>
+                            </div>
+                            <input type="text" class="macro-input cpr-input" style="margin-top:5px;" placeholder="Trigger Macro Name">
                         </div>
-
-                        <div class="request-actions flexcol">
-                            {{#if req.canApprove}}
-                                {{#if (eq req.type "custom_upgrade")}}
-                                    <div class="gm-visual-controls">
-                                        <div>
-                                            <label>SCENE ROUTING:</label>
-                                            <select class="cpr-input scene-select">
-                                                <option value="none">Visually Change Nothing</option>
-                                                {{#each ../expansionScenes as |scene|}}
-                                                    <option value="{{scene.id}}">{{scene.name}}</option>
-                                                {{/each}}
-                                            </select>
-                                        </div>
-                                        <div style="margin-top: 5px;">
-                                            <label>TRIGGER MACRO:</label>
-                                            <input type="text" class="cpr-input macro-input" placeholder="e.g., ToggleBarLights">
-                                        </div>
-                                    </div>
-                                {{/if}}
-                                <div class="flexrow" style="gap: 5px; width: 100%;">
-                                    <button type="button" data-action="approveRequest" class="cpr-btn approve" style="flex: 1;">APPROVE</button>
-                                    <button type="button" data-action="rejectRequest" class="cpr-btn reject" style="flex: 1;">REJECT</button>
-                                </div>
-                            {{/if}}
-                            {{#if req.canCancel}}
-                                <button type="button" data-action="cancelRequest" class="cpr-btn cancel" style="width: 100%;">CANCEL</button>
-                            {{/if}}
+                        <div class="flexrow" style="gap:5px; margin-top:10px;">
+                            <button type="button" data-action="approveRequest" class="cpr-btn approve" style="flex:1;">APPROVE</button>
+                            <button type="button" data-action="rejectRequest" class="cpr-btn" style="flex:1;">REJECT</button>
                         </div>
-                    </li>
-                {{/each}}
-            </ul>
-        {{/if}}
-
-        <h3 class="cpr-highlight" style="border-bottom: 2px solid var(--cpr-red); margin-top: 20px;">IN PROGRESS (CONSTRUCTION)</h3>
-        <div class="upgrade-grid">
-            {{#each constructionUpgrades as |upgrade|}}
-                <div class="cpr-card flexcol" style="border-left-color: #ffaa00; justify-content: space-between;">
-                    <div>
-                        <h4 class="cpr-bold" style="margin:0;">{{upgrade.targetSystem}}</h4>
-                        <small style="color: var(--cpr-text-muted);">PITCHED BY: {{upgrade.userName}} | <span class="eb-text" style="font-size: 0.8rem;">{{upgrade.cost}}eb</span></small>
-                        <p class="upgrade-desc">{{upgrade.description}}</p>
-                    </div>
-                    <span class="status-install" style="text-align: right; display: block; margin-top: 10px;">[ INSTALLING ]</span>
-                </div>
-            {{/each}}
-            {{#unless constructionUpgrades.length}}<p style="color: var(--cpr-text-muted); font-size: 0.9rem; grid-column: span 2;">No active construction projects.</p>{{/unless}}
-        </div>
-
-        <h3 class="cpr-highlight" style="border-bottom: 2px solid var(--cpr-red); margin-top: 20px;">ONLINE SYSTEMS</h3>
-        <div class="upgrade-grid">
-            {{#each completedUpgrades as |upgrade|}}
-                <div class="cpr-card flexcol" style="border-left-color: #00ff00; justify-content: space-between;">
-                    <div>
-                        <h4 class="cpr-bold" style="margin:0;">{{upgrade.targetSystem}}</h4>
-                        <small style="color: var(--cpr-text-muted);">PITCHED BY: {{upgrade.userName}} | <span class="eb-text" style="font-size: 0.8rem;">{{upgrade.cost}}eb</span></small>
-                        <p class="upgrade-desc">{{upgrade.description}}</p>
-                    </div>
-                    <span class="status-online" style="text-align: right; display: block; margin-top: 10px;">[ ONLINE ]</span>
-                </div>
-            {{/each}}
-            {{#unless completedUpgrades.length}}<p style="color: var(--cpr-text-muted); font-size: 0.9rem; grid-column: span 2;">No completed upgrades.</p>{{/unless}}
-        </div>
-
-        <h3 class="cpr-highlight" style="border-bottom: 2px solid var(--cpr-red); margin-top: 20px;">TRANSFER LEDGER</h3>
-        <ul class="cpr-inbox-list" style="opacity: 0.8;">
-            {{#each history as |log|}}
-                <li class="cpr-card flexcol" style="padding: 5px; margin-bottom: 5px;">
-                    <div class="flexrow" style="justify-content: space-between;">
-                        <small class="cpr-bold">FROM: {{log.actorName}} ({{log.userName}})</small>
-                        <small class="eb-text" style="font-size: 0.9rem;">+ {{log.amount}}eb</small>
-                    </div>
-                    <small>TO: <span class="cpr-bold">{{log.targetName}}</span></small>
+                    {{/if}}
                 </li>
             {{/each}}
-            {{#unless history.length}}<p style="color: var(--cpr-text-muted); font-size: 0.9rem;">No transfer history.</p>{{/unless}}
+            {{#unless inbox.length}}<p style="text-align:center; color:#666;">NO PENDING REQUESTS</p>{{/unless}}
         </ul>
 
+        <h3 class="cpr-highlight" style="border-bottom: 2px solid #ffaa00; margin-top:20px;">IN PROGRESS (UPGRADES)</h3>
+        <div class="upgrade-grid" style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+            {{#each constructionUpgrades}}
+                <div class="cpr-card" style="border-left-color: #ffaa00;">
+                    <strong style="text-transform:uppercase;">{{targetSystem}}</strong><br>
+                    <small>By: {{userName}} | {{cost}}eb</small>
+                    {{#if linkedJournalName}}<br><small style="color: #00ff00;">DOC: {{linkedJournalName}}</small>{{/if}}
+                </div>
+            {{/each}}
+        </div>
+
+        <h3 class="cpr-highlight" style="border-bottom: 2px solid #00ff00; margin-top:20px;">COMPLETED ARCHIVE</h3>
+        <div class="archive-section" style="max-height: 200px; overflow-y: auto;">
+            {{#each completedUpgrades}}
+                <div class="cpr-card" style="border-left-color: #00ff00; opacity: 0.8; margin-bottom:5px;">
+                    <strong>UPGRADE: {{targetSystem}}</strong><br>
+                    <small>Authorized by {{userName}} | Final Cost: {{cost}}eb</small>
+                </div>
+            {{/each}}
+            {{#each history}}
+                <div class="cpr-card" style="border-left-color: #00a859; opacity: 0.7; margin-bottom:5px;">
+                    <strong>TRANSFER: {{amount}}eb</strong><br>
+                    <small>{{actorName}} &rarr; {{targetName}} (Auth: {{userName}})</small>
+                </div>
+            {{/each}}
+        </div>
     {{else}}
-        <div class="cpr-error-state"><p>ERROR: NO HEADQUARTERS DETECTED. CONFIGURE IN SYSTEM SETTINGS.</p></div>
+        <div class="cpr-error-state" style="padding:40px; text-align:center; border:2px dashed #cc0000; color:#cc0000; font-weight:bold;">
+            DATA CONNECTION LOST: CONFIGURE HQ JOURNAL IN SYSTEM SETTINGS.
+        </div>
     {{/if}}
 </div>

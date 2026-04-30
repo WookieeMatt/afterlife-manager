@@ -23,6 +23,36 @@ Hooks.once('ready', () => {
         manager: AfterlifeManager,
         app: new AfterlifeDashboard()
     };
-    
-    console.log("Afterlife Manager | Systems green. Welcome to the major leagues.");
+});
+
+// LIVE REFRESH: Re-render the app whenever the Journal data changes
+Hooks.on('updateJournalEntry', (journal, data, options, userId) => {
+    const hqJournalId = game.settings.get("afterlife-manager", "hqJournalId");
+    if (journal.id === hqJournalId) {
+        const app = game.modules.get("afterlife-manager").api.app;
+        if (app && app.rendered) app.render();
+    }
+});
+
+// CHAT LISTENER: Activate GM buttons on cards
+Hooks.on('renderChatMessage', (message, html, data) => {
+    const actions = html.find('.afterlife-chat-actions');
+    if (!actions.length) return;
+
+    if (!game.user.isGM) {
+        actions.hide();
+        return;
+    }
+
+    actions.find('button').click(async (ev) => {
+        ev.preventDefault();
+        const button = ev.currentTarget;
+        const action = button.dataset.action;
+        const requestId = actions.data('requestId');
+
+        const success = await AfterlifeManager.resolveRequest(requestId, action);
+        if (success) {
+            actions.html(`<span style="color: #00ff00; font-family: monospace;">> COMMAND EXECUTED</span>`);
+        }
+    });
 });
