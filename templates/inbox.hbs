@@ -1,0 +1,104 @@
+<div class="cpr-container">
+    {{#if hasHQ}}
+        <header class="cpr-header flexrow" style="justify-content: space-between; align-items: center;">
+            <h2 style="margin:0;">AFTERLIFE MAIN TERMINAL</h2>
+            <button type="button" class="cpr-btn" data-action="openRequestForm" style="width: auto; border-color: white; color: white;">+ NEW REQUEST</button>
+        </header>
+
+        <h2 class="eb-text" style="text-align: right; margin-bottom: 15px;">SHARED FUNDS: {{sharedFunds}}eb</h2>
+
+        <h3 class="cpr-highlight" style="border-bottom: 2px solid var(--cpr-red);">PENDING REQUESTS</h3>
+        {{#if isEmpty}}
+            <div class="cpr-empty-state"><p>SYSTEM IDLE. NO PENDING TRANSACTIONS.</p></div>
+        {{else}}
+            <ul class="cpr-inbox-list">
+                {{#each inbox as |req|}}
+                    <li class="inbox-item cpr-card flexcol" data-request-id="{{req.id}}">
+                        <div class="request-info" style="margin-bottom: 10px;">
+                            {{#if (eq req.type "fund_transfer")}}
+                                <span class="request-text">
+                                    <span class="cpr-highlight">{{req.userName}}</span> INITIATED TRANSFER: <span class="eb-text">{{req.amount}}eb</span> 
+                                    <br><small>SOURCE: {{req.actorName}}</small>
+                                </span>
+                            {{/if}}
+                            {{#if (eq req.type "custom_upgrade")}}
+                                <span class="request-text">
+                                    <span class="cpr-highlight">{{req.userName}}</span> PITCHED UPGRADE: <span class="cpr-bold">{{req.targetSystem}}</span>
+                                    <br><small>FROM: {{req.previousState}} -> TO: {{req.newState}} | COST: <span class="eb-text" style="font-size: 0.9rem;">{{req.cost}}eb</span></small>
+                                    <p class="upgrade-desc" style="margin-top: 5px;">{{req.description}}</p>
+                                </span>
+                            {{/if}}
+                        </div>
+
+                        <div class="request-actions flexcol">
+                            {{#if req.canApprove}}
+                                {{#if (eq req.type "custom_upgrade")}}
+                                    <div class="gm-visual-controls">
+                                        <div>
+                                            <label>SCENE ROUTING:</label>
+                                            <select class="cpr-input scene-select">
+                                                <option value="none">Visually Change Nothing</option>
+                                                {{#each ../expansionScenes as |scene|}}
+                                                    <option value="{{scene.id}}">{{scene.name}}</option>
+                                                {{/each}}
+                                            </select>
+                                        </div>
+                                        <div style="margin-top: 5px;">
+                                            <label>TRIGGER MACRO:</label>
+                                            <input type="text" class="cpr-input macro-input" placeholder="e.g., ToggleBarLights">
+                                        </div>
+                                    </div>
+                                {{/if}}
+                                <div class="flexrow" style="gap: 5px; width: 100%;">
+                                    <button type="button" data-action="approveRequest" class="cpr-btn approve" style="flex: 1;">APPROVE</button>
+                                    <button type="button" data-action="rejectRequest" class="cpr-btn reject" style="flex: 1;">REJECT</button>
+                                </div>
+                            {{/if}}
+                            {{#if req.canCancel}}
+                                <button type="button" data-action="cancelRequest" class="cpr-btn cancel" style="width: 100%;">CANCEL</button>
+                            {{/if}}
+                        </div>
+                    </li>
+                {{/each}}
+            </ul>
+        {{/if}}
+
+        <h3 class="cpr-highlight" style="border-bottom: 2px solid var(--cpr-red); margin-top: 20px;">IN PROGRESS (CONSTRUCTION)</h3>
+        <div class="upgrade-grid">
+            {{#each constructionUpgrades as |upgrade|}}
+                <div class="cpr-card" style="border-left-color: #ffaa00;">
+                    <h4 class="cpr-bold" style="margin:0;">{{upgrade.targetSystem}}</h4>
+                    <p class="upgrade-desc">{{upgrade.description}}</p>
+                    <span class="status-install">[ INSTALLING ]</span>
+                </div>
+            {{/each}}
+            {{#unless constructionUpgrades.length}}<p style="color: var(--cpr-text-muted); font-size: 0.9rem;">No active construction projects.</p>{{/unless}}
+        </div>
+
+        <h3 class="cpr-highlight" style="border-bottom: 2px solid var(--cpr-red); margin-top: 20px;">ONLINE SYSTEMS</h3>
+        <div class="upgrade-grid">
+            {{#each completedUpgrades as |upgrade|}}
+                <div class="cpr-card" style="border-left-color: #00ff00;">
+                    <h4 class="cpr-bold" style="margin:0;">{{upgrade.targetSystem}} <br><span style="font-size: 0.8rem; color: #00ff00;">( {{upgrade.newState}} )</span></h4>
+                    <p class="upgrade-desc">{{upgrade.description}}</p>
+                    <span class="status-online">[ ONLINE ]</span>
+                </div>
+            {{/each}}
+            {{#unless completedUpgrades.length}}<p style="color: var(--cpr-text-muted); font-size: 0.9rem;">No completed upgrades.</p>{{/unless}}
+        </div>
+
+        <h3 class="cpr-highlight" style="border-bottom: 2px solid var(--cpr-red); margin-top: 20px;">TRANSFER LEDGER</h3>
+        <ul class="cpr-inbox-list" style="opacity: 0.8;">
+            {{#each history as |log|}}
+                <li class="cpr-card flexrow" style="padding: 5px; margin-bottom: 5px; justify-content: space-between;">
+                    <small class="cpr-bold">FROM: {{log.actorName}}</small>
+                    <small class="eb-text" style="font-size: 0.9rem;">+ {{log.amount}}eb</small>
+                </li>
+            {{/each}}
+            {{#unless history.length}}<p style="color: var(--cpr-text-muted); font-size: 0.9rem;">No transfer history.</p>{{/unless}}
+        </ul>
+
+    {{else}}
+        <div class="cpr-error-state"><p>ERROR: NO HEADQUARTERS DETECTED. CONFIGURE IN SYSTEM SETTINGS.</p></div>
+    {{/if}}
+</div>

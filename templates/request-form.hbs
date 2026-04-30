@@ -1,0 +1,40 @@
+<div class="cpr-container">
+    <div style="margin-bottom: 15px;">
+        <label class="cpr-bold">REQUEST CLASSIFICATION:</label>
+        <select name="requestType" class="cpr-input" data-action="toggleFormType">
+            <option value="transfer">Fund Transfer</option>
+            <option value="upgrade">Facility Upgrade Pitch</option>
+        </select>
+    </div>
+
+    <div id="transfer-fields" style="display: block;">
+        <label class="cpr-bold">SOURCE ACCOUNT:</label>
+        <select name="sourceActor" class="cpr-input" style="margin-bottom: 10px;">
+            {{#each actors as |actor|}} <option value="{{actor.id}}">{{actor.name}}</option> {{/each}}
+        </select>
+        
+        <label class="cpr-bold">AMOUNT (eb):</label>
+        <input type="number" name="amount" class="cpr-input" min="1" placeholder="500">
+    </div>
+
+    <div id="upgrade-fields" style="display: none;">
+        <label class="cpr-bold">SYSTEM UPGRADED:</label>
+        <input type="text" name="targetSystem" class="cpr-input" placeholder="e.g., Security Turrets" style="margin-bottom: 5px;">
+
+        <label class="cpr-bold">PREVIOUS STATE:</label>
+        <input type="text" name="previousState" class="cpr-input" placeholder="e.g., Broken down" style="margin-bottom: 5px;">
+
+        <label class="cpr-bold">NEW UPGRADE LEVEL:</label>
+        <input type="text" name="newState" class="cpr-input" placeholder="e.g., Militech Auto-Trackers" style="margin-bottom: 5px;">
+
+        <label class="cpr-bold">PROJECT COST (eb):</label>
+        <input type="number" name="cost" class="cpr-input" placeholder="1000" style="margin-bottom: 5px;">
+
+        <label class="cpr-bold">BLUEPRINT DETAILS:</label>
+        <textarea name="description" class="cpr-input" rows="3" placeholder="Describe the installation..."></textarea>
+    </div>
+
+    <button type="button" class="cpr-btn approve" data-action="submitRequest" style="margin-top: 15px; width: 100%;">
+        TRANSMIT REQUEST
+    </button>
+</div>
