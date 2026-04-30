@@ -75,3 +75,59 @@
     text-align: center; padding: 20px; font-family: monospace; color: var(--cpr-text-muted); border: 1px dashed var(--cpr-border);
 }
 .afterlife-dashboard .cpr-error-state { color: var(--cpr-red); border-color: var(--cpr-red); font-weight: bold; }
+
+/* Netrunner cyberdeck host (iframe shell) */
+.afterlife-cyberdeck-host .window-content {
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    overflow: hidden;
+    height: 100%;
+}
+
+.afterlife-cyberdeck-host .cyberdeck-host.flexcol {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    height: 100%;
+}
+
+.afterlife-cyberdeck-host .cyberdeck-host-toolbar {
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    border-bottom: 2px solid var(--cpr-border, #111);
+    background: var(--cpr-bg, #f4f4f4);
+}
+
+.theme-dark .afterlife-cyberdeck-host .cyberdeck-host-toolbar,
+.afterlife-cyberdeck-host.theme-dark .cyberdeck-host-toolbar {
+    background: var(--cpr-bg, #1a1a1a);
+}
+
+.afterlife-cyberdeck-host .cyberdeck-host-label {
+    font-weight: bold;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    white-space: nowrap;
+}
+
+.afterlife-cyberdeck-host .cyberdeck-host-select {
+    min-width: 200px;
+    max-width: 50%;
+}
+
+.afterlife-cyberdeck-host .cyberdeck-host-warn {
+    font-size: 0.75rem;
+    color: var(--cpr-text-muted, #555);
+}
+
+.afterlife-cyberdeck-host .cyberdeck-iframe {
+    flex: 1 1 auto;
+    width: 100%;
+    min-height: 0;
+    border: 0;
+    background: #06080c;
+}

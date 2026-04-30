@@ -1,0 +1,17 @@
+<div class="cyberdeck-host flexcol" data-application-part="deck">
+  <div class="cyberdeck-host-toolbar flexrow">
+    <label class="cyberdeck-host-label" for="afterlife-cyberdeck-actor">CHARACTER (SAVE SCOPE)</label>
+    <select id="afterlife-cyberdeck-actor" class="cyberdeck-host-select" name="cyberdeckActor" {{#unless hasActors}}disabled{{/unless}}>
+      {{#unless hasActors}}
+      <option value="">(no owned characters)</option>
+      {{/unless}}
+      {{#each actors}}
+      <option value="{{id}}" {{#if selected}}selected{{/if}}>{{name}}</option>
+      {{/each}}
+    </select>
+    {{#unless hasActors}}
+    <span class="cyberdeck-host-warn">No owned character actors — open a character you own or create one in this world.</span>
+    {{/unless}}
+  </div>
+  <iframe class="cyberdeck-iframe" src="{{iframeSrc}}" title="Netrunner Cyberdeck" referrerpolicy="no-referrer"></iframe>
+</div>

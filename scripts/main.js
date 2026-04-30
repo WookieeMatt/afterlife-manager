@@ -1,5 +1,6 @@
 import { AfterlifeManager } from "./afterlife-manager.js";
 import { AfterlifeDashboard } from "./afterlife-app.js";
+import { CyberdeckApplication } from "./cyberdeck-app.js";
 import { registerSettings } from "./settings.js";
 
 Hooks.once('init', () => {
@@ -21,7 +22,8 @@ Hooks.once('ready', () => {
 
     game.modules.get("afterlife-manager").api = {
         manager: AfterlifeManager,
-        app: new AfterlifeDashboard()
+        app: new AfterlifeDashboard(),
+        cyberdeckApp: new CyberdeckApplication()
     };
     
     console.log("Afterlife Manager | Systems green. Welcome to the major leagues.");

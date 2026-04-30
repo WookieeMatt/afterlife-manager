@@ -17,6 +17,7 @@ Instead of tracking shared funds and facility upgrades on a static spreadsheet, 
 * **The Fixer's Inbox:** GMs receive pending requests in a secure queue. Approving a request automatically deducts the funds and logs the transaction.
 * **Visual Blueprint Routing:** Tie upgrades directly to your canvas. When an upgrade is approved, the GM can automatically transition the crew to a new Scene or trigger Monk's Active Tiles via macros to turn on lights, reveal new rooms, or spawn tokens.
 * **Ledgers & History:** Automatically sorts upgrades into "In Progress (Construction)" and "Online Systems," while maintaining a permanent ledger of all eb transfers.
+* **Netrunner Cyberdeck:** In-world browser for the standalone Shadow Mk.V cyberdeck UI (programs, netrun, Agent desk). Each Foundry user and selected character gets its own `localStorage` scope so decks do not overwrite each other on the same server origin.
 
 ---
 
@@ -60,6 +61,15 @@ If you want an upgrade approval to trigger a specific Monk's Active Tile (MATT),
 game.MonksActiveTiles.triggerTile("Name Of Your Target Tile");
 ```
 
+### Open the Netrunner Cyberdeck (All Users)
+Opens the cyberdeck in a large window. Pick an **owned** character in the toolbar so saves stay separate per actor. The deck runs inside an iframe from this module (`cyberdeck/cyberdeck.html`).
+
+```javascript
+game.modules.get("afterlife-manager").api.cyberdeckApp.render({ force: true });
+```
+
+**Ollama / Agent desk:** If you use local Ollama from the in-deck Agent desk, add your Foundry origin to Ollama’s allowed origins (for example `http://localhost:30000`, or your LAN URL and port). The deck’s in-app help describes `OLLAMA_ORIGINS` in more detail.
+
 ---
 
 ## 📜 Compatibility
@@ -68,4 +78,3 @@ game.MonksActiveTiles.triggerTile("Name Of Your Target Tile");
 * **System:** Built specifically for the `cyberpunk-red-core` system framework.
 
 *Disclaimer: This module references mechanics from the "No Place Like Home" DLC by R. Talsorian Games but is an independent community project.*
-```
