@@ -1,7 +1,7 @@
 export function registerSettings() {
-    game.settings.register("afterlife-manager", "hqActorId", {
-        name: "Headquarters Actor",
-        hint: "Select the Actor that holds the Afterlife's shared funds and upgrade data.",
+    game.settings.register("afterlife-manager", "hqJournalId", {
+        name: "Headquarters Journal",
+        hint: "Select the Journal Entry that holds the Afterlife's shared funds and upgrade data.",
         scope: "world",
         config: true,
         type: String,

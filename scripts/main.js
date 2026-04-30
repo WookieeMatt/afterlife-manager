@@ -7,9 +7,9 @@ Hooks.once('init', () => {
 });
 
 Hooks.once('ready', () => {
-    const actorChoices = { "": "None" };
-    game.actors.forEach(actor => { actorChoices[actor.id] = actor.name; });
-    game.settings.settings.get("afterlife-manager.hqActorId").choices = actorChoices;
+    const journalChoices = { "": "None" };
+    game.journal.forEach(j => { journalChoices[j.id] = j.name; });
+    game.settings.settings.get("afterlife-manager.hqJournalId").choices = journalChoices;
 
     const sceneFolderChoices = { "": "None" };
     game.folders.forEach(folder => {

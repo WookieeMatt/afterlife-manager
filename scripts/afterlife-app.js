@@ -29,12 +29,14 @@ export class AfterlifeDashboard extends HandlebarsApplicationMixin(ApplicationV2
     };
 
     async _prepareContext(options) {
-        const hqActor = AfterlifeManager.hqActor;
-        const clubData = hqActor ? hqActor.getFlag('afterlife-manager', 'afterlifeState') || {} : {};
+        // Pull data from the assigned Journal Entry
+        const hqJournal = AfterlifeManager.hqJournal;
+        const clubData = hqJournal ? hqJournal.getFlag('afterlife-manager', 'afterlifeState') || {} : {};
         
         const currentUserId = game.user.id;
         const isGM = game.user.isGM;
 
+        // Process the Pending Inbox
         const rawInbox = clubData.inbox || [];
         const processedInbox = rawInbox.map(request => {
             const requestingUser = game.users.get(request.requestedBy);
@@ -48,10 +50,12 @@ export class AfterlifeDashboard extends HandlebarsApplicationMixin(ApplicationV2
             };
         });
 
+        // Process Expansion Scenes from Settings
         const targetFolderId = game.settings.get("afterlife-manager", "sceneFolderId");
         const sceneFolder = game.folders.get(targetFolderId);
         const expansionScenes = sceneFolder ? sceneFolder.contents.map(s => ({ id: s.id, name: s.name })) : [];
 
+        // Process Upgrades and Ledgers
         const customUpgrades = clubData.customUpgrades || [];
         const transferHistory = clubData.history || [];
 
@@ -62,16 +66,19 @@ export class AfterlifeDashboard extends HandlebarsApplicationMixin(ApplicationV2
             completedUpgrades: customUpgrades.filter(u => u.status === "active"),
             isGM: isGM,
             isEmpty: processedInbox.length === 0,
-            hasHQ: !!hqActor,
+            hasHQ: !!hqJournal, // Validates if the GM set up the Journal
             expansionScenes: expansionScenes,
             sharedFunds: clubData.basics?.sharedFunds || 0
         };
     }
 
+    // --- BUTTON ACTIONS ---
+
     static async _onApproveRequest(event, target) {
         const inboxItem = target.closest('.inbox-item');
         const requestId = inboxItem.dataset.requestId;
         
+        // Grab values from the GM's visual routing inputs
         let visualOptions = { sceneId: "none", macroName: "" };
         const sceneSelect = inboxItem.querySelector('.scene-select');
         const macroInput = inboxItem.querySelector('.macro-input');
