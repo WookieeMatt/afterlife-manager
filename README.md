@@ -42,19 +42,87 @@ Before your crew can start spending their eddies, you need to configure the syst
 
 Access the Afterlife OS by creating the following standard Script Macros in Foundry VTT. Give your players permissions to use the Main Terminal macro.
 
-### Open the Main Terminal (All Users)
-Opens the primary dashboard to view funds, active projects, and the transaction ledger.
+The way the system *triggers* macros (by typing a macro name into the GM Routing text box before hitting Approve) hasn't changed. If you put "Laser Door Opening" in that box, it will still successfully trigger that Foundry macro when you approve an upgrade!
+
+However, because we fully solidified the **API** in `main.js` during this update, you now have a suite of **brand new Hotbar Macros** that you and your players can use to interact with the system without digging through menus.
+
+Here is your official Macro library for Afterlife OS v2.5.0. To use any of these, create a new Macro on your hotbar, set the type to **Script**, and paste the code.
+
+### 1. Open the Main Terminal (Universal)
+This is the most important macro. Give this to all your players so they can click one button on their hotbar to open the Terminal, view the ledgers, and access the Transfer/Upgrade buttons.
+
 ```javascript
-game.modules.get("afterlife-manager").api.app.render({force: true});
+const afterlife = game.modules.get("afterlife-manager")?.api;
+
+if (afterlife) {
+    // This forces the dashboard to open for whoever clicks it
+    afterlife.app.render({force: true});
+} else {
+    ui.notifications.error("Afterlife OS terminal is currently offline.");
+}
 ```
 
-### Bypass to Submission Form (All Users)
-Instantly opens the request form to transfer funds or pitch a new facility upgrade.
+---
+
+### 2. "Headless" Quick-Transfer (Advanced Players)
+If a player frequently donates a set amount to the Afterlife bank (like a weekly 500eb tithe) and doesn't want to open the UI, they can use this macro. They just select their token on the map and click the macro.
+
 ```javascript
-new game.modules.get("afterlife-manager").api.app.constructor.PARTS.form.class().render({force: true});
+const api = game.modules.get("afterlife-manager")?.api;
+
+if (!token) {
+    ui.notifications.warn("Select your character's token first!");
+} else {
+    // Parameters: (Sender ID, Recipient ID, Amount)
+    // "afterlife" is the hardcoded ID for the Shared Fund
+    api.manager.requestFundTransfer(token.actor.id, "afterlife", 500);
+    ui.notifications.info("Transfer request sent to the Fixer.");
+}
 ```
 
-### Monk's Active Tile Bridge (GM Only)
+---
+
+### 3. GM Quick-Inject Funds (Fixer Only)
+If you want to bypass the approval system entirely and just inject money straight into the Shared Fund (e.g., they found a crate of eb, or completed a gig), use this GM-only macro. 
+
+```javascript
+if (!game.user.isGM) {
+    ui.notifications.error("Access Denied: Fixer Clearance Required.");
+    return;
+}
+
+const hq = game.modules.get("afterlife-manager").api.manager.hqJournal;
+if (!hq) return ui.notifications.error("HQ Journal not linked.");
+
+// Change the 1000 to whatever amount you want to inject
+const injectionAmount = 1000; 
+
+const clubData = hq.getFlag('afterlife-manager', 'afterlifeState') || {};
+const currentBank = clubData.basics?.sharedFunds || 0;
+
+hq.setFlag('afterlife-manager', 'afterlifeState.basics.sharedFunds', currentBank + injectionAmount).then(() => {
+    ui.notifications.info(`Successfully injected ${injectionAmount}eb into the Shared Fund.`);
+});
+```
+
+---
+
+### 4. The "Panic Button" Database Reset (Fixer Only)
+If you ever want to completely wipe the pending requests, active upgrades, and the shared bank back to zero (without deleting the journal pages themselves), keep this macro handy.
+
+```javascript
+if (!game.user.isGM) return;
+
+const hq = game.modules.get("afterlife-manager").api.manager.hqJournal;
+
+if (hq) {
+    hq.unsetFlag('afterlife-manager', 'afterlifeState').then(() => {
+        ui.notifications.info("Afterlife OS Database has been wiped clean.");
+    });
+}
+```
+
+### 5. Monk's Active Tile Bridge (GM Only)
 If you want an upgrade approval to trigger a specific Monk's Active Tile (MATT), create a macro with the exact name you type into the OS Approval prompt. Use this code inside that macro:
 ```javascript
 game.MonksActiveTiles.triggerTile("Name Of Your Target Tile");

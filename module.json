@@ -5,7 +5,7 @@
   "version": "2.5.0",
   "compatibility": {
     "minimum": "12",
-    "verified": "12"
+    "verified": "12.999"
   },
   "systems": ["cyberpunk-red-core"],
   "esmodules": [
