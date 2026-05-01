@@ -1,20 +1,29 @@
 <div class="cpr-container">
-    <label class="cpr-bold">NAME OF UPGRADE:</label>
-    <input type="text" name="targetSystem" class="cpr-input" placeholder="e.g., Security Turrets" style="margin-bottom: 10px;">
+    <div class="cpr-card" style="padding: 15px;">
+        <label class="cpr-bold" style="color: #cc0000;">UPGRADE NAME:</label>
+        <input type="text" name="targetSystem" class="cpr-input" placeholder="e.g., Heavy Turrets" style="margin-bottom: 15px;">
 
-    <label class="cpr-bold">COST OF UPGRADE (eb):</label>
-    <input type="number" name="cost" class="cpr-input" placeholder="10000000" style="margin-bottom: 10px;">
+        <label class="cpr-bold" style="color: #cc0000;">PROJECT COST (eb):</label>
+        <input type="number" name="cost" class="cpr-input" min="1" max="100000000000000" placeholder="1000" style="margin-bottom: 15px;">
 
-    <label class="cpr-bold">DETAILS OF UPGRADE:</label>
-    <textarea name="description" class="cpr-input" rows="4" placeholder="Describe the installation..." style="margin-bottom: 15px;"></textarea>
+        <label class="cpr-bold" style="color: #cc0000;">FUNDING SOURCE:</label>
+        <select name="fundingSource" class="cpr-input" style="margin-bottom: 15px;">
+            <option value="shared">Shared Afterlife Bank</option>
+            <option value="personal">Personal Account (Sponsor Pays)</option>
+        </select>
 
-    <label class="cpr-bold">FUNDING:</label>
-    <select name="fundingSource" class="cpr-input">
-        <option value="shared">Shared Fund</option>
-        <option value="personal">Personal Account</option>
-    </select>
+        <label class="cpr-bold" style="color: #cc0000;">AUTHORIZING SPONSOR (If Personal):</label>
+        <select name="sponsorActor" class="cpr-input" style="margin-bottom: 15px;">
+            {{#each actors}}
+                <option value="{{this.id}}" {{#if this.selected}}selected{{/if}}>{{this.name}}</option>
+            {{/each}}
+        </select>
 
-    <label class="cpr-bold">DETAILS:</label>
-    <textarea name="description" class="cpr-input"></textarea>
-    <button type="button" class="cpr-btn approve" data-action="submitUpgrade">SUBMIT UPGRADE</button>
+        <label class="cpr-bold" style="color: #cc0000;">DETAILS / ARCHITECTURAL NOTES:</label>
+        <textarea name="description" class="cpr-input" rows="3" style="margin-bottom: 15px;"></textarea>
+
+        <button type="button" class="cpr-btn approve" data-action="submitUpgrade" style="width: 100%; font-weight: bold; height: 40px;">
+            SUBMIT PITCH
+        </button>
+    </div>
 </div>

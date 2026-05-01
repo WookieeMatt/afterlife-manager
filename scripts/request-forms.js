@@ -4,6 +4,7 @@ const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 export class FundTransferForm extends HandlebarsApplicationMixin(ApplicationV2) {
     static DEFAULT_OPTIONS = {
         id: "afterlife-transfer-form", title: "UNIVERSAL FUND TRANSFER", tag: "form",
+        classes: ["afterlife-window"],
         window: { width: 400, height: "auto" },
         actions: {
             submitTransfer: async function(event, target) {
@@ -16,19 +17,25 @@ export class FundTransferForm extends HandlebarsApplicationMixin(ApplicationV2) 
         }
     };
     static PARTS = { form: { template: "modules/afterlife-manager/templates/transfer-form.hbs" } };
+    
     async _prepareContext() {
-        return { actors: game.actors.filter(a => a.isOwner), allActors: game.actors.map(a => ({ id: a.id, name: a.name })) };
+        const defaultId = game.user.isGM ? game.settings.get("afterlife-manager", "fixerActorId") : game.user.character?.id;
+        const actors = game.actors.filter(a => a.isOwner).map(a => ({
+            id: a.id, name: a.name, selected: a.id === defaultId
+        }));
+        return { actors: actors, allActors: game.actors.map(a => ({ id: a.id, name: a.name })) };
     }
 }
 
 export class UpgradePitchForm extends HandlebarsApplicationMixin(ApplicationV2) {
     static DEFAULT_OPTIONS = {
         id: "afterlife-upgrade-form", title: "PURCHASE UPGRADE", tag: "form",
+        classes: ["afterlife-window"],
         window: { width: 450, height: "auto" },
         actions: {
             submitUpgrade: async function(event, target) {
                 const fd = new FormDataExtended(target.closest("form")).object;
-                fd.sourceActorId = game.user.character?.id || null;
+                fd.sourceActorId = fd.sponsorActor || null;
                 if(fd.cost > 0) {
                     await AfterlifeManager.requestCustomUpgrade(fd);
                     this.close();
@@ -37,4 +44,12 @@ export class UpgradePitchForm extends HandlebarsApplicationMixin(ApplicationV2) 
         }
     };
     static PARTS = { form: { template: "modules/afterlife-manager/templates/upgrade-form.hbs" } };
+
+    async _prepareContext() {
+        const defaultId = game.user.isGM ? game.settings.get("afterlife-manager", "fixerActorId") : game.user.character?.id;
+        const actors = game.actors.filter(a => a.isOwner).map(a => ({
+            id: a.id, name: a.name, selected: a.id === defaultId
+        }));
+        return { actors: actors };
+    }
 }

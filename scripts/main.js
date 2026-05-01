@@ -11,9 +11,9 @@ Hooks.once('setup', () => {
 });
 
 Hooks.once('ready', async () => {
-    // Scaffold the database journals automatically for the GM
     if (game.user.isGM) {
         await AfterlifeManager.ensureDatabaseJournals();
+        await AfterlifeManager.ensureFixerNPC(); 
     }
 
     const journalChoices = { "": "None" };
@@ -26,11 +26,15 @@ Hooks.once('ready', async () => {
     });
     game.settings.settings.get("afterlife-manager.sceneFolderId").choices = sceneFolderChoices;
 
+    const actorChoices = { "": "None" };
+    game.actors.forEach(a => { actorChoices[a.id] = a.name; });
+    game.settings.settings.get("afterlife-manager.fixerActorId").choices = actorChoices;
+
     game.modules.get("afterlife-manager").api = {
         manager: AfterlifeManager,
         app: new AfterlifeDashboard()
     };
-    console.log("Afterlife OS | Terminal Online.");
+    console.log("Afterlife OS | v2.5.0 Terminal Online.");
 });
 
 Hooks.on('updateJournalEntry', (journal) => {
@@ -46,10 +50,12 @@ Hooks.on('renderChatMessage', (message, html) => {
     if (!actions.length) return;
     if (!game.user.isGM) return actions.hide(); 
 
-    actions.find('button').on('click', async (ev) => {
+    // Use .off('click') to prevent multi-firing if the chat re-renders
+    actions.find('button').off('click').on('click', async (ev) => {
         ev.preventDefault();
         const action = ev.currentTarget.dataset.action; 
         const requestId = actions.data('requestId');
+        
         const success = await AfterlifeManager.resolveRequest(requestId, action);
         
         if (success) {
@@ -57,7 +63,7 @@ Hooks.on('renderChatMessage', (message, html) => {
             let color = "#00ff00";
             if (action === "reject") { statusText = "> REJECTED"; color = "#ff0000"; }
             if (action === "hold") { statusText = "> ON HOLD"; color = "#ffaa00"; }
-            actions.html(`<span style="color:${color}; font-weight:bold;">${statusText}</span>`);
+            actions.html(`<span style="color:${color}; font-weight:bold; font-family: monospace;">${statusText}</span>`);
         }
     });
 });

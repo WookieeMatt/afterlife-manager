@@ -1,14 +1,25 @@
 <div class="cpr-container">
-    <label class="cpr-bold">SENDER:</label>
-    <select name="sourceActor" class="cpr-input">
-        {{#each actors}}<option value="{{this.id}}">{{this.name}}</option>{{/each}}
-    </select>
-    <label class="cpr-bold">RECIPIENT:</label>
-    <select name="targetActor" class="cpr-input">
-        <option value="afterlife">Shared Fund</option>
-        {{#each allActors}}<option value="{{this.id}}">{{this.name}}</option>{{/each}}
-    </select>
-    <label class="cpr-bold">AMOUNT:</label>
-    <input type="number" name="amount" class="cpr-input" min="1">
-    <button type="button" class="cpr-btn approve" data-action="submitTransfer">SEND TRANSFER</button>
+    <div class="cpr-card" style="padding: 15px;">
+        <label class="cpr-bold" style="color: #cc0000;">AUTHORIZE SENDER:</label>
+        <select name="sourceActor" class="cpr-input" style="margin-bottom: 15px;">
+            {{#each actors}}
+                <option value="{{this.id}}" {{#if this.selected}}selected{{/if}}>{{this.name}}</option>
+            {{/each}}
+        </select>
+
+        <label class="cpr-bold" style="color: #cc0000;">TARGET RECIPIENT:</label>
+        <select name="targetActor" class="cpr-input" style="margin-bottom: 15px;">
+            <option value="afterlife">-- SHARED AFTERLIFE BANK --</option>
+            {{#each allActors}}
+                <option value="{{this.id}}">{{this.name}}</option>
+            {{/each}}
+        </select>
+
+        <label class="cpr-bold" style="color: #cc0000;">CURRENCY AMOUNT (eb):</label>
+        <input type="number" name="amount" class="cpr-input" min="1" placeholder="Enter amount..." style="margin-bottom: 20px;">
+
+        <button type="button" class="cpr-btn approve" data-action="submitTransfer" style="width: 100%; font-weight: bold; height: 40px;">
+            EXECUTE WIRE TRANSFER
+        </button>
+    </div>
 </div>

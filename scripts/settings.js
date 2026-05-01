@@ -21,10 +21,20 @@ export function registerSettings() {
 
     game.settings.register("afterlife-manager", "enableLedgerPrinting", {
         name: "Enable Ledger Printing",
-        hint: "Automatically log all approved, held, and rejected requests into the Afterlife Database journal pages.",
+        hint: "Automatically log all approved/rejected requests into the Afterlife Database journal.",
         scope: "world",
         config: true,
         type: Boolean,
         default: true
+    });
+
+    game.settings.register("afterlife-manager", "fixerActorId", {
+        name: "Identity of the Fixer",
+        hint: "Select the NPC/Mook that acts as the system GM. NOTE: Everyone but the GM must link to their character by right-clicking their name in the bottom-left Player list and selecting 'User Configuration'.",
+        scope: "world",
+        config: true,
+        type: String,
+        choices: {}, 
+        default: ""
     });
 }

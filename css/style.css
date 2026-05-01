@@ -1,77 +1,168 @@
-.afterlife-dashboard {
-    --cpr-red: #cc0000;
-    --cpr-dark-red: #990000;
-    --cpr-black: #111111;
-    --cpr-bg: #f4f4f4;
-    --cpr-text: #111111;
-    --cpr-text-muted: #555555;
-    --cpr-border: #111111;
-    --cpr-font: "Signika", sans-serif;
+/* ========================================================
+   AFTERLIFE OS - CORE STYLESHEET (v2.5 Thematic Update)
+   ======================================================== */
+
+.afterlife-window .window-content {
+    background: #0f0f0f;
+    color: #e0e0e0;
+    font-family: 'Signika', sans-serif;
+    padding: 0;
+    border: 1px solid #cc0000;
+    box-shadow: inset 0 0 20px rgba(204, 0, 0, 0.1);
+    transition: opacity 0.2s ease-in-out;
 }
 
-.theme-dark .afterlife-dashboard, .afterlife-dashboard.theme-dark {
-    --cpr-bg: #1a1a1a;
-    --cpr-text: #e0e0e0;
-    --cpr-text-muted: #999999;
-    --cpr-border: #cc0000;
-    --cpr-black: #000000;
+.afterlife-window.render-state-rendering { opacity: 0.8; }
+
+.cpr-container {
+    padding: 15px;
+    height: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
 }
 
-.afterlife-dashboard .window-content {
-    background-color: var(--cpr-bg); color: var(--cpr-text); font-family: var(--cpr-font);
-    border: 3px solid var(--cpr-border); padding: 15px; overflow-y: auto;
+.cpr-header h2 {
+    color: #cc0000;
+    border-bottom: 2px solid #cc0000;
+    padding-bottom: 5px;
+    text-transform: uppercase;
+    font-weight: 900;
+    letter-spacing: 2px;
+    text-shadow: 0 0 5px rgba(204, 0, 0, 0.6);
 }
 
-.afterlife-dashboard .cpr-header {
-    background-color: var(--cpr-red); color: white; padding: 10px;
-    text-transform: uppercase; font-weight: bold; letter-spacing: 2px; margin-bottom: 15px;
-    clip-path: polygon(0 0, 100% 0, 95% 100%, 0% 100%);
+.eb-text {
+    color: #00ff00;
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: bold;
+    text-shadow: 0 0 8px rgba(0, 255, 0, 0.4);
 }
 
-.afterlife-dashboard .cpr-header h2 { margin: 0; border: none; font-size: 1.5rem; text-shadow: 1px 1px 0px var(--cpr-black); }
-.afterlife-dashboard .cpr-highlight { color: var(--cpr-red); font-weight: bold; text-transform: uppercase; }
-.afterlife-dashboard .cpr-bold { font-weight: bold; text-transform: uppercase; }
-.afterlife-dashboard .eb-text { color: #00a859; font-weight: bold; font-family: monospace; font-size: 1.1rem; }
-
-.afterlife-dashboard .cpr-inbox-list { list-style: none; padding: 0; margin: 0; }
-.afterlife-dashboard .upgrade-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px; }
-
-.afterlife-dashboard .cpr-card {
-    background-color: transparent; padding: 10px; margin-bottom: 10px;
-    border-left: 5px solid var(--cpr-red); border-bottom: 1px solid var(--cpr-border);
-    border-top: 1px solid var(--cpr-border); border-right: 1px solid var(--cpr-border);
+.cpr-highlight {
+    color: #e0e0e0;
+    text-transform: uppercase;
+    font-size: 1.1rem;
+    padding-bottom: 3px;
+    letter-spacing: 1px;
 }
 
-.afterlife-dashboard .request-info { flex: 2; font-size: 1rem; line-height: 1.4; }
-.afterlife-dashboard .upgrade-desc { font-size: 0.9rem; color: var(--cpr-text-muted); margin: 10px 0; }
-
-.afterlife-dashboard .gm-visual-controls {
-    margin-top: 10px; margin-bottom: 10px; padding-top: 10px; padding-bottom: 10px;
-    border-top: 1px dashed var(--cpr-border); font-size: 0.85rem; width: 100%;
+.cpr-bold {
+    font-weight: bold;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    color: #cc0000;
+    display: block;
+    margin-top: 10px;
+    margin-bottom: 5px;
 }
 
-.afterlife-dashboard .gm-visual-controls label { color: var(--cpr-text-muted); font-weight: bold; display: block; margin-bottom: 2px; }
-.afterlife-dashboard .cpr-input {
-    width: 100%; background: var(--cpr-bg); color: var(--cpr-text);
-    border: 1px solid var(--cpr-border); padding: 5px; font-family: var(--cpr-font);
+.empty-text {
+    color: #555;
+    font-style: italic;
+    font-family: 'Courier New', Courier, monospace;
 }
 
-.afterlife-dashboard .request-actions { flex: 1; gap: 5px; justify-content: flex-end; }
-.afterlife-dashboard .cpr-btn {
-    background-color: transparent; color: var(--cpr-text); border: 2px solid var(--cpr-border);
-    font-family: var(--cpr-font); font-weight: bold; text-transform: uppercase;
-    cursor: pointer; transition: all 0.2s ease; border-radius: 0; padding: 5px 10px;
+.cpr-input {
+    width: 100%;
+    background: #000 !important;
+    color: #00ff00 !important;
+    border: 1px solid #444;
+    padding: 8px;
+    font-family: 'Courier New', Courier, monospace;
+    box-sizing: border-box;
+    border-radius: 0;
+    transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-.afterlife-dashboard .cpr-btn:hover { box-shadow: 2px 2px 0px var(--cpr-red); transform: translate(-1px, -1px); }
-.afterlife-dashboard .cpr-btn.approve { background-color: var(--cpr-red); color: white; border-color: var(--cpr-red); }
-.afterlife-dashboard .cpr-btn.approve:hover { background-color: var(--cpr-dark-red); box-shadow: 2px 2px 0px var(--cpr-black); }
-
-.afterlife-dashboard .status-online { color: #00ff00; font-weight: bold; font-family: monospace; }
-.afterlife-dashboard .status-install { color: #ffaa00; font-weight: bold; font-family: monospace; }
-.afterlife-dashboard .status-error { color: var(--cpr-red); font-weight: bold; font-family: monospace; }
-
-.afterlife-dashboard .cpr-empty-state, .afterlife-dashboard .cpr-error-state {
-    text-align: center; padding: 20px; font-family: monospace; color: var(--cpr-text-muted); border: 1px dashed var(--cpr-border);
+.cpr-input:focus {
+    border-color: #cc0000;
+    outline: none;
+    box-shadow: 0 0 8px rgba(204, 0, 0, 0.5);
 }
-.afterlife-dashboard .cpr-error-state { color: var(--cpr-red); border-color: var(--cpr-red); font-weight: bold; }
+
+textarea.cpr-input {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.cpr-btn {
+    background: transparent;
+    color: #e0e0e0;
+    border: 1px solid #555;
+    padding: 8px 15px;
+    font-family: 'Signika', sans-serif;
+    font-weight: bold;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-radius: 0;
+}
+
+.cpr-btn:hover {
+    background: #cc0000;
+    border-color: #ff1a1a;
+    color: #fff;
+    box-shadow: 0 0 10px rgba(204, 0, 0, 0.4);
+}
+
+.cpr-btn.approve {
+    background: #cc0000;
+    color: #fff;
+    border-color: #cc0000;
+}
+
+.cpr-tabs {
+    border-bottom: 2px solid #333;
+    display: flex;
+}
+
+.cpr-tab-btn {
+    flex: 1;
+    background: transparent;
+    color: #666;
+    border: none;
+    border-bottom: 3px solid transparent;
+    font-weight: bold;
+    font-size: 1.1rem;
+    padding: 10px 0;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    font-family: 'Signika', sans-serif;
+}
+
+.cpr-tab-btn:hover {
+    color: #aaa;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.cpr-tab-btn.active {
+    color: #cc0000;
+    border-bottom: 3px solid #cc0000;
+    background: rgba(204, 0, 0, 0.1);
+    text-shadow: 0 0 5px rgba(204, 0, 0, 0.3);
+}
+
+.cpr-scroll-area::-webkit-scrollbar { width: 6px; }
+.cpr-scroll-area::-webkit-scrollbar-track { background: #050505; border-left: 1px solid #222; }
+.cpr-scroll-area::-webkit-scrollbar-thumb { background: #333; }
+.cpr-scroll-area::-webkit-scrollbar-thumb:hover { background: #cc0000; }
+
+.cpr-card {
+    background: #111;
+    border: 1px solid #222;
+    border-left: 4px solid #555;
+    padding: 10px;
+}
+
+.cpr-card strong { color: #fff; }
+.request-info small { color: #aaa; display: block; margin-top: 4px; }
+
+.gm-visual-controls {
+    background: rgba(0, 0, 0, 0.4);
+    padding: 8px;
+    border: 1px dashed #333;
+}
+
+.flexrow { display: flex; flex-direction: row; align-items: center; }
+.flexcol { display: flex; flex-direction: column; }
