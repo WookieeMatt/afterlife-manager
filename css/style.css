@@ -1,5 +1,5 @@
 /* ========================================================
-   AFTERLIFE OS - CORE STYLESHEET (v2.5 Thematic Update)
+   AFTERLIFE OS - CORE STYLESHEET (v2.5.1 Brighter Accents)
    ======================================================== */
 
 .afterlife-window .window-content {
@@ -7,8 +7,8 @@
     color: #e0e0e0;
     font-family: 'Signika', sans-serif;
     padding: 0;
-    border: 1px solid #cc0000;
-    box-shadow: inset 0 0 20px rgba(204, 0, 0, 0.1);
+    border: 1px solid #ff4444;
+    box-shadow: inset 0 0 20px rgba(255, 68, 68, 0.1);
     transition: opacity 0.2s ease-in-out;
 }
 
@@ -23,24 +23,24 @@
 }
 
 .cpr-header h2 {
-    color: #cc0000;
-    border-bottom: 2px solid #cc0000;
+    color: #ff4444;
+    border-bottom: 2px solid #ff4444;
     padding-bottom: 5px;
     text-transform: uppercase;
     font-weight: 900;
     letter-spacing: 2px;
-    text-shadow: 0 0 5px rgba(204, 0, 0, 0.6);
+    text-shadow: 0 0 8px rgba(255, 68, 68, 0.7);
 }
 
 .eb-text {
     color: #00ff00;
     font-family: 'Courier New', Courier, monospace;
     font-weight: bold;
-    text-shadow: 0 0 8px rgba(0, 255, 0, 0.4);
+    text-shadow: 0 0 8px rgba(0, 255, 0, 0.5);
 }
 
 .cpr-highlight {
-    color: #e0e0e0;
+    color: #ffffff;
     text-transform: uppercase;
     font-size: 1.1rem;
     padding-bottom: 3px;
@@ -51,14 +51,14 @@
     font-weight: bold;
     text-transform: uppercase;
     font-size: 0.85rem;
-    color: #cc0000;
+    color: #ff4444;
     display: block;
     margin-top: 10px;
     margin-bottom: 5px;
 }
 
 .empty-text {
-    color: #555;
+    color: #777;
     font-style: italic;
     font-family: 'Courier New', Courier, monospace;
 }
@@ -67,7 +67,7 @@
     width: 100%;
     background: #000 !important;
     color: #00ff00 !important;
-    border: 1px solid #444;
+    border: 1px solid #555;
     padding: 8px;
     font-family: 'Courier New', Courier, monospace;
     box-sizing: border-box;
@@ -76,9 +76,9 @@
 }
 
 .cpr-input:focus {
-    border-color: #cc0000;
+    border-color: #ff4444;
     outline: none;
-    box-shadow: 0 0 8px rgba(204, 0, 0, 0.5);
+    box-shadow: 0 0 8px rgba(255, 68, 68, 0.6);
 }
 
 textarea.cpr-input {
@@ -89,7 +89,7 @@ textarea.cpr-input {
 .cpr-btn {
     background: transparent;
     color: #e0e0e0;
-    border: 1px solid #555;
+    border: 1px solid #666;
     padding: 8px 15px;
     font-family: 'Signika', sans-serif;
     font-weight: bold;
@@ -100,27 +100,27 @@ textarea.cpr-input {
 }
 
 .cpr-btn:hover {
-    background: #cc0000;
-    border-color: #ff1a1a;
+    background: #ff4444;
+    border-color: #ff6666;
     color: #fff;
-    box-shadow: 0 0 10px rgba(204, 0, 0, 0.4);
+    box-shadow: 0 0 12px rgba(255, 68, 68, 0.6);
 }
 
 .cpr-btn.approve {
-    background: #cc0000;
+    background: #ff4444;
     color: #fff;
-    border-color: #cc0000;
+    border-color: #ff4444;
 }
 
 .cpr-tabs {
-    border-bottom: 2px solid #333;
+    border-bottom: 2px solid #444;
     display: flex;
 }
 
 .cpr-tab-btn {
     flex: 1;
     background: transparent;
-    color: #666;
+    color: #888;
     border: none;
     border-bottom: 3px solid transparent;
     font-weight: bold;
@@ -132,36 +132,36 @@ textarea.cpr-input {
 }
 
 .cpr-tab-btn:hover {
-    color: #aaa;
+    color: #ccc;
     background: rgba(255, 255, 255, 0.05);
 }
 
 .cpr-tab-btn.active {
-    color: #cc0000;
-    border-bottom: 3px solid #cc0000;
-    background: rgba(204, 0, 0, 0.1);
-    text-shadow: 0 0 5px rgba(204, 0, 0, 0.3);
+    color: #ff4444;
+    border-bottom: 3px solid #ff4444;
+    background: rgba(255, 68, 68, 0.1);
+    text-shadow: 0 0 5px rgba(255, 68, 68, 0.4);
 }
 
 .cpr-scroll-area::-webkit-scrollbar { width: 6px; }
 .cpr-scroll-area::-webkit-scrollbar-track { background: #050505; border-left: 1px solid #222; }
-.cpr-scroll-area::-webkit-scrollbar-thumb { background: #333; }
-.cpr-scroll-area::-webkit-scrollbar-thumb:hover { background: #cc0000; }
+.cpr-scroll-area::-webkit-scrollbar-thumb { background: #444; }
+.cpr-scroll-area::-webkit-scrollbar-thumb:hover { background: #ff4444; }
 
 .cpr-card {
     background: #111;
     border: 1px solid #222;
-    border-left: 4px solid #555;
+    border-left: 4px solid #666;
     padding: 10px;
 }
 
 .cpr-card strong { color: #fff; }
-.request-info small { color: #aaa; display: block; margin-top: 4px; }
+.request-info small { color: #ccc; display: block; margin-top: 4px; }
 
 .gm-visual-controls {
-    background: rgba(0, 0, 0, 0.4);
+    background: rgba(0, 0, 0, 0.5);
     padding: 8px;
-    border: 1px dashed #333;
+    border: 1px dashed #444;
 }
 
 .flexrow { display: flex; flex-direction: row; align-items: center; }

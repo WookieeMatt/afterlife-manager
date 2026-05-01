@@ -7,9 +7,14 @@ export class AfterlifeManager {
     }
 
     static init() {
-        game.socket.off(this.SOCKET_NAME);
-        game.socket.on(this.SOCKET_NAME, this._onSocketMessage.bind(this));
-        console.log("Afterlife OS | Secure Socket Active.");
+        game.socket.off(AfterlifeManager.SOCKET_NAME);
+        
+        // Arrow function to preserve scope
+        game.socket.on(AfterlifeManager.SOCKET_NAME, (payload) => {
+            AfterlifeManager._onSocketMessage(payload);
+        });
+        
+        console.log("Afterlife OS | Secure Socket Active & Listening.");
     }
 
     static async ensureDatabaseJournals() {
@@ -78,9 +83,14 @@ export class AfterlifeManager {
                 sourceActorId, targetActorId, amount, status: "pending", timestamp: Date.now()
             }
         };
-        if (game.user.isGM) await this._onSocketMessage(payload);
-        else game.socket.emit(this.SOCKET_NAME, payload);
-        this._createChatCard("Transfer Initiated", `Amount: ${amount}eb`, reqId);
+        
+        if (game.user.isGM) {
+            await AfterlifeManager._onSocketMessage(payload);
+        } else {
+            game.socket.emit(AfterlifeManager.SOCKET_NAME, payload);
+        }
+        
+        AfterlifeManager._createChatCard("Transfer Initiated", `Amount: ${amount}eb`, reqId);
     }
 
     static async requestCustomUpgrade(upgradeData) {
@@ -92,28 +102,40 @@ export class AfterlifeManager {
                 status: "pending", timestamp: Date.now(), ...upgradeData
             }
         };
-        if (game.user.isGM) await this._onSocketMessage(payload);
-        else game.socket.emit(this.SOCKET_NAME, payload);
-        this._createChatCard("Upgrade Pitch", `System: ${upgradeData.targetSystem}`, reqId);
+        
+        if (game.user.isGM) {
+            await AfterlifeManager._onSocketMessage(payload);
+        } else {
+            game.socket.emit(AfterlifeManager.SOCKET_NAME, payload);
+        }
+        
+        AfterlifeManager._createChatCard("Upgrade Pitch", `System: ${upgradeData.targetSystem}`, reqId);
     }
 
     static async _onSocketMessage(payload) {
         if (!game.user.isGM) return;
-        const hq = this.hqJournal;
-        if (!hq) return;
+        
+        console.log("Afterlife OS | GM CAUGHT SOCKET PAYLOAD:", payload);
+        
+        const hq = AfterlifeManager.hqJournal;
+        if (!hq) {
+            console.error("Afterlife OS | GM Socket Error: HQ Journal is undefined.");
+            return;
+        }
 
         if (payload.action === "addRequest") {
             const data = hq.getFlag('afterlife-manager', 'afterlifeState') || {};
             const requests = data.requests || [];
             requests.push(payload.requestData);
+            
             await hq.setFlag('afterlife-manager', 'afterlifeState.requests', requests);
-            ui.notifications.info(`Afterlife OS: New Request Logged.`);
+            ui.notifications.info(`Afterlife OS: New Request Logged to Terminal.`);
         }
     }
 
     static async resolveRequest(requestId, resolutionType, visualOptions = { sceneId: "none", macroName: "", journalId: "none" }) {
         if (!game.user.isGM) return false;
-        const hq = this.hqJournal;
+        const hq = AfterlifeManager.hqJournal;
         const clubData = hq?.getFlag('afterlife-manager', 'afterlifeState') || {};
         const requests = clubData.requests || [];
 
@@ -169,7 +191,7 @@ export class AfterlifeManager {
         }
 
         request.status = resolutionType === "approve" ? "active" : resolutionType;
-        await this._writeToLedger(request, resolutionType);
+        await AfterlifeManager._writeToLedger(request, resolutionType);
 
         requests[idx] = request;
         await hq.setFlag('afterlife-manager', 'afterlifeState.requests', requests);
@@ -178,7 +200,7 @@ export class AfterlifeManager {
 
     static async _writeToLedger(request, action) {
         if (!game.settings.get("afterlife-manager", "enableLedgerPrinting")) return;
-        const journal = this.hqJournal;
+        const journal = AfterlifeManager.hqJournal;
         if (!journal) return;
 
         const isTransfer = request.type === "fund_transfer";
@@ -194,11 +216,11 @@ export class AfterlifeManager {
         const requesterName = (requester && requester.isGM) ? designatedFixerName : (requester?.name || "Unknown");
         const approverName = game.user.isGM ? designatedFixerName : game.user.name;
         
-        let color = "#555555";
+        let color = "#777777";
         let actionText = action.toUpperCase();
-        if(action === "approve") { color = "#00a859"; actionText = "AUTHORIZED"; }
-        if(action === "hold") { color = "#ffaa00"; actionText = "PLACED ON HOLD"; }
-        if(action === "reject") { color = "#cc0000"; actionText = "DENIED"; }
+        if(action === "approve") { color = "#00ff55"; actionText = "AUTHORIZED"; }
+        if(action === "hold") { color = "#ffcc00"; actionText = "PLACED ON HOLD"; }
+        if(action === "reject") { color = "#ff4444"; actionText = "DENIED"; }
 
         let logEntry = "";
         if (isTransfer) {
@@ -223,13 +245,13 @@ export class AfterlifeManager {
         ChatMessage.create({
             speaker: { alias: "Afterlife OS" },
             content: `
-                <div style="background:#1a1a1a; padding:10px; border-left:4px solid #cc0000; color:#eee;">
-                    <h4 style="color:#cc0000; margin:0; text-transform:uppercase;">${title}</h4>
-                    <p style="font-size:0.85rem; margin:5px 0; font-family: 'Courier New', monospace;">${body}</p>
+                <div style="background:#1a1a1a; padding:10px; border-left:4px solid #ff4444; color:#eee;">
+                    <h4 style="color:#ff4444; margin:0; text-transform:uppercase; text-shadow: 0 0 5px rgba(255,68,68,0.5);">${title}</h4>
+                    <p style="font-size:0.85rem; margin:5px 0; font-family: 'Courier New', monospace; color:#fff;">${body}</p>
                     <div class="afterlife-chat-actions flexrow" data-request-id="${reqId}" style="margin-top:8px; gap:5px;">
                         <button type="button" data-action="approve" style="background:#00a859; color:white; border:none; cursor:pointer; padding:3px; font-weight:bold;">APPROVE</button>
                         <button type="button" data-action="hold" style="background:#ffaa00; color:white; border:none; cursor:pointer; padding:3px; font-weight:bold; color:#000;">HOLD</button>
-                        <button type="button" data-action="reject" style="background:#cc0000; color:white; border:none; cursor:pointer; padding:3px; font-weight:bold;">REJECT</button>
+                        <button type="button" data-action="reject" style="background:#ff4444; color:white; border:none; cursor:pointer; padding:3px; font-weight:bold;">REJECT</button>
                     </div>
                 </div>`
         });

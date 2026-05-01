@@ -6,16 +6,17 @@ Hooks.once('init', () => {
     registerSettings();
 });
 
-Hooks.once('setup', () => {
-    AfterlifeManager.init();
-});
-
 Hooks.once('ready', async () => {
+    // 1. Initialize the Socket exactly when the server is ready
+    AfterlifeManager.init();
+
+    // 2. Scaffold the database and Fixer NPC for the GM
     if (game.user.isGM) {
         await AfterlifeManager.ensureDatabaseJournals();
         await AfterlifeManager.ensureFixerNPC(); 
     }
 
+    // 3. Populate Settings Dropdowns
     const journalChoices = { "": "None" };
     game.journal.forEach(j => { journalChoices[j.id] = j.name; });
     game.settings.settings.get("afterlife-manager.hqJournalId").choices = journalChoices;
@@ -30,11 +31,13 @@ Hooks.once('ready', async () => {
     game.actors.forEach(a => { actorChoices[a.id] = a.name; });
     game.settings.settings.get("afterlife-manager.fixerActorId").choices = actorChoices;
 
+    // 4. Mount API
     game.modules.get("afterlife-manager").api = {
         manager: AfterlifeManager,
         app: new AfterlifeDashboard()
     };
-    console.log("Afterlife OS | v2.5.0 Terminal Online.");
+    
+    console.log("Afterlife OS | v2.5.1 Terminal Online & Network Secured.");
 });
 
 Hooks.on('updateJournalEntry', (journal) => {
@@ -50,7 +53,6 @@ Hooks.on('renderChatMessage', (message, html) => {
     if (!actions.length) return;
     if (!game.user.isGM) return actions.hide(); 
 
-    // Use .off('click') to prevent multi-firing if the chat re-renders
     actions.find('button').off('click').on('click', async (ev) => {
         ev.preventDefault();
         const action = ev.currentTarget.dataset.action; 
@@ -61,7 +63,7 @@ Hooks.on('renderChatMessage', (message, html) => {
         if (success) {
             let statusText = "> EXECUTED";
             let color = "#00ff00";
-            if (action === "reject") { statusText = "> REJECTED"; color = "#ff0000"; }
+            if (action === "reject") { statusText = "> REJECTED"; color = "#ff4444"; }
             if (action === "hold") { statusText = "> ON HOLD"; color = "#ffaa00"; }
             actions.html(`<span style="color:${color}; font-weight:bold; font-family: monospace;">${statusText}</span>`);
         }
