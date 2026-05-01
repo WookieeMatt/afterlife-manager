@@ -18,4 +18,13 @@ export function registerSettings() {
         choices: {}, 
         default: ""
     });
+
+    game.settings.register("afterlife-manager", "enableLedgerPrinting", {
+        name: "Enable Ledger Printing",
+        hint: "Automatically log all approved, held, and rejected requests into the Afterlife Database journal pages.",
+        scope: "world",
+        config: true,
+        type: Boolean,
+        default: true
+    });
 }

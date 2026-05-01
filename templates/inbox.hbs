@@ -6,74 +6,62 @@
                 <button type="button" class="cpr-btn" data-action="openTransferForm" style="color:#000; background:#d3d3d3; font-weight:900;">FUND TRANSFER</button>
                 <button type="button" class="cpr-btn" data-action="openUpgradeForm" style="color:#000; background:#d3d3d3; font-weight:900;">PURCHASE UPGRADE</button>
             </div>
+            <h2 class="eb-text" style="text-align: right; border:none; margin:10px 0;">FUNDS: {{sharedFunds}}eb</h2>
         </header>
 
-        <h2 class="eb-text" style="text-align: right; border:none; margin-bottom:10px;">FUNDS: {{sharedFunds}}eb</h2>
-
-        <h3 class="cpr-highlight" style="border-bottom: 2px solid #cc0000; margin-bottom:10px;">PENDING REQUESTS</h3>
-        <ul class="cpr-inbox-list" style="list-style:none; padding:0;">
-            {{#each inbox as |req|}}
-                <li class="inbox-item cpr-card flexcol" data-request-id="{{req.id}}" style="margin-bottom:10px;">
-                    <div class="request-info">
-                        {{#if (eq req.type "fund_transfer")}}
-                            <span class="cpr-highlight">{{req.userName}}</span>: {{req.amount}}eb <br>
-                            <small>{{req.actorName}} &rarr; {{req.targetName}}</small>
-                        {{else}}
-                            <span class="cpr-highlight">{{req.userName}}</span> PITCHED: {{req.targetSystem}} ({{req.cost}}eb)<br>
-                            <small>{{req.description}}</small>
-                        {{/if}}
-                    </div>
-
-                    {{#if req.canApprove}}
-                        <div class="gm-visual-controls" style="border-top: 1px dashed #444; margin-top: 8px; padding-top: 8px;">
-                            <label style="font-size:0.7rem; color:#888;">ROUTING & DOCS</label>
-                            <div class="flexrow" style="gap:5px;">
-                                <select class="scene-select cpr-input" title="Scene Change">
-                                    <option value="none">No Scene Change</option>
-                                    {{#each ../expansionScenes}}<option value="{{this.id}}">{{this.name}}</option>{{/each}}
-                                </select>
-                                <select class="journal-select cpr-input" title="Link Journal Entry">
-                                    <option value="none">No Linked Journal</option>
-                                    {{#each ../allJournals}}<option value="{{this.id}}">{{this.name}}</option>{{/each}}
-                                </select>
-                            </div>
-                            <input type="text" class="macro-input cpr-input" style="margin-top:5px;" placeholder="Trigger Macro Name">
-                        </div>
-                        <div class="flexrow" style="gap:5px; margin-top:10px;">
-                            <button type="button" data-action="approveRequest" class="cpr-btn approve" style="flex:1;">APPROVE</button>
-                            <button type="button" data-action="rejectRequest" class="cpr-btn" style="flex:1;">REJECT</button>
-                        </div>
-                    {{/if}}
-                </li>
-            {{/each}}
-            {{#unless inbox.length}}<p style="text-align:center; color:#666;">NO PENDING REQUESTS</p>{{/unless}}
-        </ul>
-
-        <h3 class="cpr-highlight" style="border-bottom: 2px solid #ffaa00; margin-top:20px;">IN PROGRESS (UPGRADES)</h3>
-        <div class="upgrade-grid" style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-            {{#each constructionUpgrades}}
-                <div class="cpr-card" style="border-left-color: #ffaa00;">
-                    <strong style="text-transform:uppercase;">{{targetSystem}}</strong><br>
-                    <small>By: {{userName}} | {{cost}}eb</small>
-                    {{#if linkedJournalName}}<br><small style="color: #00ff00;">DOC: {{linkedJournalName}}</small>{{/if}}
-                </div>
-            {{/each}}
+        <div class="cpr-tabs flexrow" style="gap:5px; margin-bottom: 15px;">
+            <button type="button" class="cpr-tab-btn {{#if isTransfersTab}}active{{/if}}" data-action="switchTab" data-tab="transfers">FUND TRANSFERS</button>
+            <button type="button" class="cpr-tab-btn {{#if isUpgradesTab}}active{{/if}}" data-action="switchTab" data-tab="upgrades">FACILITY UPGRADES</button>
         </div>
 
-        <h3 class="cpr-highlight" style="border-bottom: 2px solid #00ff00; margin-top:20px;">COMPLETED ARCHIVE</h3>
-        <div class="archive-section" style="max-height: 200px; overflow-y: auto;">
-            {{#each completedUpgrades}}
-                <div class="cpr-card" style="border-left-color: #00ff00; opacity: 0.8; margin-bottom:5px;">
-                    <strong>UPGRADE: {{targetSystem}}</strong><br>
-                    <small>Authorized by {{userName}} | Final Cost: {{cost}}eb</small>
+        <div class="cpr-scroll-area" style="max-height: 550px; overflow-y: auto; padding-right: 5px;">
+            {{#if isTransfersTab}}
+                <h3 class="cpr-highlight" style="border-bottom: 2px solid #cc0000;">REQUESTED (PENDING)</h3>
+                {{#each transferPending}}{{> requestItem req=this scenes=../expansionScenes journals=../allJournals}}{{else}}<p style="color:#666;">No pending transfers.</p>{{/each}}
+
+                <h3 class="cpr-highlight" style="border-bottom: 2px solid #ffaa00; margin-top:15px;">ON HOLD</h3>
+                {{#each transferHold}}{{> requestItem req=this scenes=../expansionScenes journals=../allJournals}}{{else}}<p style="color:#666;">No transfers on hold.</p>{{/each}}
+
+                <h3 class="cpr-highlight" style="border-bottom: 2px solid #00a859; margin-top:15px;">ACTIVE / COMPLETED</h3>
+                {{#each transferActive}}
+                    <div class="cpr-card" style="border-left-color: #00a859; opacity: 0.8; margin-bottom:5px;">
+                        <strong>{{amount}}eb</strong> | <small>{{actorName}} &rarr; {{targetName}} (Auth: {{userName}})</small>
+                    </div>
+                {{else}}<p style="color:#666;">No completed transfers.</p>{{/each}}
+
+                <h3 class="cpr-highlight" style="border-bottom: 2px solid #555; margin-top:15px; color:#888;">REJECTED</h3>
+                {{#each transferRejected}}
+                    <div class="cpr-card" style="border-left-color: #555; opacity: 0.5; margin-bottom:5px;">
+                        <strong>{{amount}}eb</strong> | <small><del>{{actorName}} &rarr; {{targetName}}</del></small>
+                    </div>
+                {{/each}}
+            {{/if}}
+
+            {{#if isUpgradesTab}}
+                <h3 class="cpr-highlight" style="border-bottom: 2px solid #cc0000;">REQUESTED PITCHES</h3>
+                {{#each upgradePending}}{{> requestItem req=this scenes=../expansionScenes journals=../allJournals}}{{else}}<p style="color:#666;">No pending upgrades.</p>{{/each}}
+
+                <h3 class="cpr-highlight" style="border-bottom: 2px solid #ffaa00; margin-top:15px;">ON HOLD</h3>
+                {{#each upgradeHold}}{{> requestItem req=this scenes=../expansionScenes journals=../allJournals}}{{else}}<p style="color:#666;">No upgrades on hold.</p>{{/each}}
+
+                <h3 class="cpr-highlight" style="border-bottom: 2px solid #00a859; margin-top:15px;">ACTIVE PROJECTS</h3>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                    {{#each upgradeActive}}
+                        <div class="cpr-card" style="border-left-color: #00a859;">
+                            <strong style="text-transform:uppercase;">{{targetSystem}}</strong><br>
+                            <small>By: {{userName}} | {{cost}}eb</small>
+                            {{#if linkedJournalName}}<br><small style="color: #00ff00;">DOC: {{linkedJournalName}}</small>{{/if}}
+                        </div>
+                    {{else}}<p style="color:#666; grid-column: span 2;">No active projects.</p>{{/each}}
                 </div>
-            {{/each}}
-            {{#each history}}
-                <div class="cpr-card" style="border-left-color: #00a859; opacity: 0.7; margin-bottom:5px;">
-                    <strong>TRANSFER: {{amount}}eb</strong><br>
-                    <small>{{actorName}} &rarr; {{targetName}} (Auth: {{userName}})</small>
-                </div>
-            {{/each}}
+
+                <h3 class="cpr-highlight" style="border-bottom: 2px solid #555; margin-top:15px; color:#888;">REJECTED PITCHES</h3>
+                {{#each upgradeRejected}}
+                    <div class="cpr-card" style="border-left-color: #555; opacity: 0.5; margin-bottom:5px;">
+                        <strong><del>{{targetSystem}}</del></strong> | <small>Pitch by {{userName}} Denied</small>
+                    </div>
+                {{/each}}
+            {{/if}}
         </div>
     {{else}}
         <div class="cpr-error-state" style="padding:40px; text-align:center; border:2px dashed #cc0000; color:#cc0000; font-weight:bold;">
@@ -81,3 +69,39 @@
         </div>
     {{/if}}
 </div>
+
+{{#*inline "requestItem"}}
+<li class="inbox-item cpr-card flexcol" data-request-id="{{req.id}}" style="margin-bottom:10px; list-style:none;">
+    <div class="request-info">
+        {{#if (eq req.type "fund_transfer")}}
+            <span class="cpr-highlight">{{req.userName}}</span>: {{req.amount}}eb <br>
+            <small>{{req.actorName}} &rarr; {{req.targetName}}</small>
+        {{else}}
+            <span class="cpr-highlight">{{req.userName}}</span> PITCHED: {{req.targetSystem}} ({{req.cost}}eb)<br>
+            <small>{{req.description}}</small>
+        {{/if}}
+    </div>
+
+    {{#if req.canApprove}}
+        <div class="gm-visual-controls" style="border-top: 1px dashed #444; margin-top: 8px; padding-top: 8px;">
+            <label style="font-size:0.7rem; color:#888;">GM ROUTING & DOCS</label>
+            <div class="flexrow" style="gap:5px;">
+                <select class="scene-select cpr-input" title="Scene Change">
+                    <option value="none">No Scene Change</option>
+                    {{#each scenes}}<option value="{{this.id}}">{{this.name}}</option>{{/each}}
+                </select>
+                <select class="journal-select cpr-input" title="Link Journal Entry">
+                    <option value="none">No Linked Journal</option>
+                    {{#each journals}}<option value="{{this.id}}">{{this.name}}</option>{{/each}}
+                </select>
+            </div>
+            <input type="text" class="macro-input cpr-input" style="margin-top:5px;" placeholder="Trigger Macro Name">
+        </div>
+        <div class="flexrow" style="gap:5px; margin-top:10px;">
+            <button type="button" data-action="approveReq" class="cpr-btn approve" style="flex:1; background:#00a859;">APPROVE</button>
+            <button type="button" data-action="holdReq" class="cpr-btn" style="flex:1; background:#ffaa00; border-color:#ffaa00; color:#000;">HOLD</button>
+            <button type="button" data-action="rejectReq" class="cpr-btn" style="flex:1;">REJECT</button>
+        </div>
+    {{/if}}
+</li>
+{{/inline}}
