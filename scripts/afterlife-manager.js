@@ -1,5 +1,4 @@
 export class AfterlifeManager {
-    static SOCKET_NAME = "module.afterlife-manager";
 
     static get hqJournal() {
         const id = game.settings.get("afterlife-manager", "hqJournalId");
@@ -7,14 +6,8 @@ export class AfterlifeManager {
     }
 
     static init() {
-        game.socket.off(AfterlifeManager.SOCKET_NAME);
-        
-        // Arrow function to preserve scope
-        game.socket.on(AfterlifeManager.SOCKET_NAME, (payload) => {
-            AfterlifeManager._onSocketMessage(payload);
-        });
-        
-        console.log("Afterlife OS | Secure Socket Active & Listening.");
+        // Sockets have been abandoned. We now use Native Document Syncing.
+        console.log("Afterlife OS | Document Sync Architecture Active.");
     }
 
     static async ensureDatabaseJournals() {
@@ -74,64 +67,61 @@ export class AfterlifeManager {
         }
     }
 
+    // --- PLAYER ACTIONS ---
+
     static async requestFundTransfer(sourceActorId, targetActorId, amount) {
         const reqId = foundry.utils.randomID();
         const payload = {
-            action: "addRequest",
-            requestData: {
-                id: reqId, type: "fund_transfer", requestedBy: game.user.id,
-                sourceActorId, targetActorId, amount, status: "pending", timestamp: Date.now()
-            }
+            id: reqId, type: "fund_transfer", requestedBy: game.user.id,
+            sourceActorId, targetActorId, amount, status: "pending", timestamp: Date.now()
         };
         
         if (game.user.isGM) {
-            await AfterlifeManager._onSocketMessage(payload);
+            await AfterlifeManager._processPayload(payload);
+            AfterlifeManager._createChatCard("Transfer Initiated", `Amount: ${amount}eb`, reqId);
         } else {
-            game.socket.emit(AfterlifeManager.SOCKET_NAME, payload);
+            // Embed the payload directly into the chat message for the GM to catch
+            AfterlifeManager._createChatCard("Transfer Initiated", `Amount: ${amount}eb`, reqId, payload);
         }
-        
-        AfterlifeManager._createChatCard("Transfer Initiated", `Amount: ${amount}eb`, reqId);
     }
 
     static async requestCustomUpgrade(upgradeData) {
         const reqId = foundry.utils.randomID();
         const payload = {
-            action: "addRequest",
-            requestData: {
-                id: reqId, type: "custom_upgrade", requestedBy: game.user.id,
-                status: "pending", timestamp: Date.now(), ...upgradeData
-            }
+            id: reqId, type: "custom_upgrade", requestedBy: game.user.id,
+            status: "pending", timestamp: Date.now(), ...upgradeData
         };
         
         if (game.user.isGM) {
-            await AfterlifeManager._onSocketMessage(payload);
+            await AfterlifeManager._processPayload(payload);
+            AfterlifeManager._createChatCard("Upgrade Pitch", `System: ${upgradeData.targetSystem}`, reqId);
         } else {
-            game.socket.emit(AfterlifeManager.SOCKET_NAME, payload);
+            // Embed the payload directly into the chat message
+            AfterlifeManager._createChatCard("Upgrade Pitch", `System: ${upgradeData.targetSystem}`, reqId, payload);
         }
-        
-        AfterlifeManager._createChatCard("Upgrade Pitch", `System: ${upgradeData.targetSystem}`, reqId);
     }
 
-    static async _onSocketMessage(payload) {
+    // --- GM RECEIVER (Now reads from Chat Data) ---
+
+    static async _processPayload(requestData) {
         if (!game.user.isGM) return;
-        
-        console.log("Afterlife OS | GM CAUGHT SOCKET PAYLOAD:", payload);
         
         const hq = AfterlifeManager.hqJournal;
         if (!hq) {
-            console.error("Afterlife OS | GM Socket Error: HQ Journal is undefined.");
+            console.error("Afterlife OS | GM ERROR: HQ Journal is missing.");
             return;
         }
 
-        if (payload.action === "addRequest") {
-            const data = hq.getFlag('afterlife-manager', 'afterlifeState') || {};
-            const requests = data.requests || [];
-            requests.push(payload.requestData);
-            
-            await hq.setFlag('afterlife-manager', 'afterlifeState.requests', requests);
-            ui.notifications.info(`Afterlife OS: New Request Logged to Terminal.`);
-        }
+        const data = hq.getFlag('afterlife-manager', 'afterlifeState') || {};
+        const requests = data.requests || [];
+        requests.push(requestData);
+        
+        await hq.setFlag('afterlife-manager', 'afterlifeState.requests', requests);
+        ui.notifications.info(`Afterlife OS: New Request Logged to Terminal.`);
+        console.log("Afterlife OS | Payload secured and saved to database.");
     }
+
+    // --- GM RESOLUTION ---
 
     static async resolveRequest(requestId, resolutionType, visualOptions = { sceneId: "none", macroName: "", journalId: "none" }) {
         if (!game.user.isGM) return false;
@@ -241,8 +231,8 @@ export class AfterlifeManager {
         await page.update({ "text.content": newContent });
     }
 
-    static _createChatCard(title, body, reqId) {
-        ChatMessage.create({
+    static _createChatCard(title, body, reqId, hiddenPayload = null) {
+        const messageData = {
             speaker: { alias: "Afterlife OS" },
             content: `
                 <div style="background:#1a1a1a; padding:10px; border-left:4px solid #ff4444; color:#eee;">
@@ -254,6 +244,13 @@ export class AfterlifeManager {
                         <button type="button" data-action="reject" style="background:#ff4444; color:white; border:none; cursor:pointer; padding:3px; font-weight:bold;">REJECT</button>
                     </div>
                 </div>`
-        });
+        };
+
+        // This is the magic. The data travels inside the chat message itself.
+        if (hiddenPayload) {
+            messageData.flags = { "afterlife-manager": { payload: hiddenPayload } };
+        }
+
+        ChatMessage.create(messageData);
     }
 }

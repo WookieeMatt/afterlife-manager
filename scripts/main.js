@@ -7,16 +7,13 @@ Hooks.once('init', () => {
 });
 
 Hooks.once('ready', async () => {
-    // 1. Initialize the Socket exactly when the server is ready
     AfterlifeManager.init();
 
-    // 2. Scaffold the database and Fixer NPC for the GM
     if (game.user.isGM) {
         await AfterlifeManager.ensureDatabaseJournals();
         await AfterlifeManager.ensureFixerNPC(); 
     }
 
-    // 3. Populate Settings Dropdowns
     const journalChoices = { "": "None" };
     game.journal.forEach(j => { journalChoices[j.id] = j.name; });
     game.settings.settings.get("afterlife-manager.hqJournalId").choices = journalChoices;
@@ -31,15 +28,15 @@ Hooks.once('ready', async () => {
     game.actors.forEach(a => { actorChoices[a.id] = a.name; });
     game.settings.settings.get("afterlife-manager.fixerActorId").choices = actorChoices;
 
-    // 4. Mount API
     game.modules.get("afterlife-manager").api = {
         manager: AfterlifeManager,
         app: new AfterlifeDashboard()
     };
     
-    console.log("Afterlife OS | v2.5.1 Terminal Online & Network Secured.");
+    console.log("Afterlife OS | Terminal Online & Document Syncing Active.");
 });
 
+// UI Live Refresh
 Hooks.on('updateJournalEntry', (journal) => {
     const hqId = game.settings.get("afterlife-manager", "hqJournalId");
     if (journal.id === hqId) {
@@ -48,6 +45,19 @@ Hooks.on('updateJournalEntry', (journal) => {
     }
 });
 
+// GM: Secretly intercept payloads from player chat messages
+Hooks.on('createChatMessage', async (message, options, userId) => {
+    if (!game.user.isGM) return; // Only GM processes this
+    
+    // Check if the message contains a hidden payload
+    const hiddenPayload = message.getFlag("afterlife-manager", "payload");
+    if (hiddenPayload) {
+        console.log("Afterlife OS | Intercepted Document Payload!");
+        await AfterlifeManager._processPayload(hiddenPayload);
+    }
+});
+
+// Chat Interaction Buttons
 Hooks.on('renderChatMessage', (message, html) => {
     const actions = html.find('.afterlife-chat-actions');
     if (!actions.length) return;
