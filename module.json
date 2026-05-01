@@ -2,7 +2,7 @@
   "id": "afterlife-manager",
   "title": "Afterlife OS",
   "description": "HQ Management & Financial Ledger for Cyberpunk Red.",
-  "version": "2.5.0",
+  "version": "2.5.1",
   "compatibility": {
     "minimum": "12",
     "verified": "12.999"
